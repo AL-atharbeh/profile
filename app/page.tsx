@@ -2,52 +2,65 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { getProfileData, ProfileData } from '@/lib/supabase';
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
   const [scrollY, setScrollY] = useState(0);
   const [showShare, setShowShare] = useState(false);
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
 
   useEffect(() => {
-    // Loading animation
-    setTimeout(() => setLoading(false), 2000);
+    // Load profile data from Supabase
+    const loadData = async () => {
+      const data = await getProfileData();
+      if (data) {
+        setProfileData(data);
+      }
+      // Loading animation
+      setTimeout(() => setLoading(false), 2000);
+    };
+
+    loadData();
 
     // Parallax effect
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  const appLinks = [
-    { 
-      title: 'MAKEUP STORE', 
-      url: 'https://yourstore.com', 
-      iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png'
-    },
-    { 
-      title: 'INSPIRATION', 
-      url: 'https://instagram.com/yourusername', 
-      iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png'
-    },
-    { 
-      title: 'SNAPCHAT', 
-      url: 'https://snapchat.com/add/yourusername', 
-      iconUrl: 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg'
-    },
-    { 
-      title: 'WHATSAPP', 
-      url: 'https://wa.me/966500000000', 
-      iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg'
-    },
-    { 
-      title: 'BEAUTY TIPS', 
-      url: 'https://tiktok.com/@yourusername', 
-      iconUrl: 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg'
-    },
-    { 
-      title: 'FACEBOOK', 
-      url: 'https://facebook.com/yourusername', 
-      iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg'
-    },
+  // Icon mapping for backward compatibility
+  const getIconUrl = (icon: string) => {
+    const iconMap: Record<string, string> = {
+      instagram: 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png',
+      tiktok: 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg',
+      snapchat: 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg',
+      whatsapp: 'https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg',
+      facebook: 'https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg',
+    };
+    return iconMap[icon.toLowerCase()] || iconMap.instagram;
+  };
+
+  // Use data from Supabase or fallback to defaults
+  const displayName = profileData?.name || 'ELARA VANCE';
+  const displayTitle = profileData?.title || 'Makeup Artist | Entrepreneur';
+  const displayAvatar = profileData?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80';
+  const displayBackground = profileData?.background_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1080&q=80';
+  const displayStats = profileData?.stats || {
+    followers: '127K',
+    likes: '2.4M',
+    posts: '850',
+  };
+  const appLinks = profileData?.links?.map(link => ({
+    title: link.title,
+    url: link.url,
+    iconUrl: getIconUrl(link.icon),
+  })) || [
+    { title: 'MAKEUP STORE', url: 'https://yourstore.com', iconUrl: getIconUrl('instagram') },
+    { title: 'INSPIRATION', url: 'https://instagram.com/yourusername', iconUrl: getIconUrl('instagram') },
+    { title: 'SNAPCHAT', url: 'https://snapchat.com/add/yourusername', iconUrl: getIconUrl('snapchat') },
+    { title: 'WHATSAPP', url: 'https://wa.me/966500000000', iconUrl: getIconUrl('whatsapp') },
+    { title: 'BEAUTY TIPS', url: 'https://tiktok.com/@yourusername', iconUrl: getIconUrl('tiktok') },
+    { title: 'FACEBOOK', url: 'https://facebook.com/yourusername', iconUrl: getIconUrl('facebook') },
   ];
 
   const handleShare = async () => {
@@ -70,14 +83,14 @@ export default function Home() {
   };
 
   if (loading) {
-    return (
+  return (
       <div className="fixed inset-0 relative overflow-hidden z-50">
         {/* Background matching main page */}
         <div className="absolute inset-0">
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: `url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1080&q=80')`,
+              backgroundImage: `url('${displayBackground}')`,
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80"></div>
@@ -116,7 +129,7 @@ export default function Home() {
               {/* Main avatar with real image */}
               <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-white/70 shadow-2xl animate-pulse-slow">
                 <img 
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&q=80"
+                  src={displayAvatar}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
@@ -128,12 +141,12 @@ export default function Home() {
 
           {/* Name */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 tracking-wide drop-shadow-2xl animate-fade-in text-center">
-            ELARA VANCE
+            {displayName}
           </h1>
 
           {/* Subtitle */}
           <p className="text-white/90 text-sm sm:text-base tracking-widest drop-shadow-lg mb-8 animate-fade-in text-center">
-            Makeup Artist | Entrepreneur
+            {displayTitle}
           </p>
 
           {/* Loading bar */}
@@ -182,7 +195,7 @@ export default function Home() {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-100"
           style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1080&q=80')`,
+            backgroundImage: `url('${displayBackground}')`,
             transform: `translateY(${scrollY * 0.2}px)`
           }}
         />
@@ -249,7 +262,7 @@ export default function Home() {
               <div className="relative">
                 <div className="w-32 h-32 rounded-full overflow-hidden shadow-2xl backdrop-blur-sm gradient-border-avatar">
                   <Image
-                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80"
+                    src={displayAvatar}
                     alt="Profile"
                     width={128}
                     height={128}
@@ -263,25 +276,25 @@ export default function Home() {
             {/* Profile Name & Bio */}
             <div className="text-center mb-6 animate-fade-in-up animation-delay-200">
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-wide drop-shadow-2xl">
-                ELARA VANCE
+                {displayName}
               </h1>
               <p className="text-white/90 text-base tracking-widest drop-shadow-lg">
-                Makeup Artist | Entrepreneur
+                {displayTitle}
               </p>
             </div>
 
             {/* Stats/Counters - Mobile Optimized */}
             <div className="w-full mb-8 grid grid-cols-3 gap-2 sm:gap-4 px-2 sm:px-0">
               <div className="text-center bg-white/15 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-4 hover:bg-white/25 hover:scale-105 transition-all duration-300 shadow-lg animate-fade-in-up animation-delay-400 gradient-border-stats">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-0.5 sm:mb-1 drop-shadow-lg">127K</div>
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-0.5 sm:mb-1 drop-shadow-lg">{displayStats.followers}</div>
                 <div className="text-[10px] sm:text-xs text-white/90 uppercase tracking-wider font-semibold">Followers</div>
               </div>
               <div className="text-center bg-white/15 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-4 hover:bg-white/25 hover:scale-105 transition-all duration-300 shadow-lg animate-fade-in-up animation-delay-500 gradient-border-stats">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-0.5 sm:mb-1 drop-shadow-lg">2.4M</div>
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-0.5 sm:mb-1 drop-shadow-lg">{displayStats.likes}</div>
                 <div className="text-[10px] sm:text-xs text-white/90 uppercase tracking-wider font-semibold">Likes</div>
               </div>
               <div className="text-center bg-white/15 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-4 hover:bg-white/25 hover:scale-105 transition-all duration-300 shadow-lg animate-fade-in-up animation-delay-600 gradient-border-stats">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-0.5 sm:mb-1 drop-shadow-lg">850</div>
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-0.5 sm:mb-1 drop-shadow-lg">{displayStats.posts}</div>
                 <div className="text-[10px] sm:text-xs text-white/90 uppercase tracking-wider font-semibold">Posts</div>
               </div>
             </div>
@@ -292,8 +305,8 @@ export default function Home() {
                 <a
                   key={index}
                   href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+            target="_blank"
+            rel="noopener noreferrer"
                   className="group block animate-fade-in-up"
                   style={{ animationDelay: `${700 + index * 100}ms` }}
                 >
