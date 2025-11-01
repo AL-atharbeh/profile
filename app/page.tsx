@@ -190,13 +190,14 @@ export default function Home() {
         ))}
       </div>
 
-      {/* Background Image with Subtle Parallax */}
-      <div className="absolute inset-0">
+      {/* Background Image with Zoom Effect */}
+      <div className="absolute inset-0 overflow-hidden">
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-100"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-700 ease-out"
           style={{
             backgroundImage: `url('${displayBackground}')`,
-            transform: `translateY(${scrollY * 0.2}px)`
+            transform: `scale(${1 + scrollY * 0.0003})`,
+            transformOrigin: 'center center'
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
