@@ -173,9 +173,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen w-full relative overflow-hidden" style={{ margin: 0, padding: 0 }}>
+    <div className="min-h-screen relative overflow-hidden">
       {/* Enhanced Particles Background */}
-      <div className="absolute inset-0 top-0 left-0 right-0 bottom-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(30)].map((_, i) => (
           <div
             key={i}
@@ -191,23 +191,21 @@ export default function Home() {
       </div>
 
       {/* Background Image with Zoom Effect */}
-      <div className="fixed inset-0 top-0 left-0 right-0 bottom-0 w-full h-full overflow-hidden" style={{ margin: 0, padding: 0 }}>
+      <div className="absolute inset-0 overflow-hidden">
         <div 
-          className="absolute inset-0 top-0 left-0 right-0 bottom-0 w-full h-full bg-cover bg-center bg-no-repeat transition-transform duration-700 ease-out"
+          className="absolute inset-0 bg-cover md:bg-cover bg-center bg-no-repeat transition-transform duration-700 ease-out"
           style={{
             backgroundImage: `url('${displayBackground}')`,
             backgroundSize: 'cover',
             backgroundPosition: 'center center',
             width: '100%',
             height: '100%',
-            margin: 0,
-            padding: 0,
             transform: `scale(${1 + scrollY * 0.0003})`,
             transformOrigin: 'center center'
           }}
         />
-        <div className="absolute inset-0 top-0 left-0 right-0 bottom-0 w-full h-full bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
-        <div className="absolute inset-0 top-0 left-0 right-0 bottom-0 w-full h-full bg-red-900/20 mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
+        <div className="absolute inset-0 bg-red-900/20 mix-blend-multiply"></div>
       </div>
 
       {/* Share Button - Mobile Friendly */}
