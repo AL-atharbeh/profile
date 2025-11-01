@@ -193,9 +193,13 @@ export default function Home() {
       {/* Background Image with Zoom Effect */}
       <div className="absolute inset-0 overflow-hidden">
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-700 ease-out"
+          className="absolute inset-0 bg-cover md:bg-cover bg-center bg-no-repeat transition-transform duration-700 ease-out"
           style={{
             backgroundImage: `url('${displayBackground}')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center center',
+            width: '100%',
+            height: '100%',
             transform: `scale(${1 + scrollY * 0.0003})`,
             transformOrigin: 'center center'
           }}
